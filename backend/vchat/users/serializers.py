@@ -23,7 +23,12 @@ class UserRegisterSerializers(serializers.ModelSerializer):
             )
 
         return attrs
-
+    
+    def validate_username(self, value):
+        if User.objects.filter(username = value).exists():
+            raise serializers.ValidationError("Username already exists")
+        return value
+            
     def create(self, validated_data):
         password = validated_data.pop("password")
         validated_data.pop("password2")
