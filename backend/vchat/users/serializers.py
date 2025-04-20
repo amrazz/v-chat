@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from .models import CustomUser as User
+from .models import CustomUser as User, Message
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.password_validation import validate_password
+
 
 User = get_user_model()
 
@@ -25,7 +26,7 @@ class UserRegisterSerializers(serializers.ModelSerializer):
         return attrs
     
     def validate_username(self, value):
-        if User.objects.filter(username = value).exists():
+        if User.objects.filter(username=value).exists():
             raise serializers.ValidationError("Username already exists")
         return value
             
@@ -72,6 +73,11 @@ class UserDetailSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "profile_img",
-            "bio",
             "is_online",
         )
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = '__all__'

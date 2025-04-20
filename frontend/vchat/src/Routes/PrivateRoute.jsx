@@ -34,17 +34,14 @@ const PrivateRoute = ({ children }) => {
 
       if (access_token) {
         try {
-          const decode = jwtDecode(access_token);
-          console.log(`This is the access token decode :`, decode);
-          const exp = decode.exp;
-          const now = Date.now() / 1000;
-          if (exp > now + 5) {
+          const decoded = jwtDecode(access_token);
+          if (decoded.exp > Date.now() / 1000 + 5) {
             setIsAuthenticated(true);
             setIsValidating(false);
             return;
           }
-        } catch (error) {
-          console.warn("invalid access token", error);
+        } catch (err) {
+          console.warn("Access token invalid or expired", err);
         }
       }
 
@@ -55,7 +52,6 @@ const PrivateRoute = ({ children }) => {
           const res = await api.post("token/refresh/", {
             refresh: refresh_token,
           });
-
           if (res?.data?.access) {
             dispatch(
               saveLogin({
@@ -69,7 +65,7 @@ const PrivateRoute = ({ children }) => {
             return;
           }
         } catch (error) {
-          console.log("Get new access token failed:", error);
+          console.log("Refresh token failed:", error);
         }
       }
 
@@ -89,11 +85,11 @@ const PrivateRoute = ({ children }) => {
     );
   }
 
-  if (!isAuthenticated) { 
-    return <Navigate to="/" replace state={{ from: location }} />; 
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace state={{ from: location }} />;
   }
-  
-  return children; 
-}; 
- 
+
+  return children;
+};
+
 export default PrivateRoute;

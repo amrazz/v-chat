@@ -16,7 +16,7 @@ const UserAuth = () => {
   const api = useApi();
   const [isVisible, setIsVisible] = useState(false);
 
-  const initailValues = {
+  const initialValues = {
     username: "",
     password: "",
     password2: "",
@@ -66,7 +66,6 @@ const UserAuth = () => {
           toast.success("Logged in successfully");
           console.log("Login successfull", response.data);
           navigate("/home", { replace: true });
-
         }
       } else {
         const response = await api.post("users/register/", {
@@ -122,7 +121,7 @@ const UserAuth = () => {
           </h1>
 
           <Formik
-            initialValues={initailValues}
+            initialValues={initialValues}
             validationSchema={validateSchema}
             onSubmit={handleSubmit}
           >
@@ -209,7 +208,7 @@ const UserAuth = () => {
                       Confirm Password
                     </label>
                     <Field
-                      type="password"
+                      type={isVisible ? "text" : "password"}
                       name="password2"
                       className="border rounded-full p-2 focus:outline-none focus:ring-blue-500 tracking-wider font-montserrat"
                     />
@@ -227,7 +226,13 @@ const UserAuth = () => {
                   disabled={isSubmitting}
                   className="mt-4 border text-white font-semibold py-2 transition-all ease-in-out bg-black font-montserrat hover:bg-white hover:text-black "
                 >
-                  {isLogin ? "Login" : "Register"}
+                  {isLogin
+                    ? isSubmitting
+                      ? "Logging in..."
+                      : "Login"
+                    : isSubmitting
+                    ? "Registering..."
+                    : "Register"}
                 </button>
 
                 <p
