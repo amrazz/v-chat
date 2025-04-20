@@ -1,7 +1,6 @@
 asgiref
 Django
 django-cors-headers
-django-allauth
 djangorestframework
 djangorestframework-simplejwt
 PyJWT
@@ -12,3 +11,5 @@ python-dotenv
 django-channels
 daphne
 pillow
+channels-redis
+decouple
