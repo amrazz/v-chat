@@ -3,7 +3,7 @@
 set -o errexit
 
 # Navigate to the correct directory
-cd "$(dirname "$0")"
+cd vchat
 
 # Modify this line as needed for your package manager (pip, poetry, etc.)
 pip install -r requirements.txt
