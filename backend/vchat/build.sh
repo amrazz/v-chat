@@ -10,5 +10,8 @@ python manage.py collectstatic --no-input
 
 python manage.py makemigrations
 
-# Apply any outstanding database migrations
+# First migrate only the users app
+python manage.py migrate users
+
+# Then migrate the rest
 python manage.py migrate
