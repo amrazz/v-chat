@@ -52,7 +52,7 @@ const Home = () => {
   useEffect(() => {
     if (!selectedUser) return;
   
-    const wsUrl = `ws://localhost:8000/ws/chat/${selectedUser.id}/?token=${access_token}`;
+    const wsUrl = `wss://v-chat-j9d2.onrender.com/ws/chat/${selectedUser.id}/?token=${access_token}`;
     socket.current = new WebSocket(wsUrl);
   
     socket.current.onopen = () => {
