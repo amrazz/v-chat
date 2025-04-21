@@ -2,21 +2,20 @@
 # Exit on error
 set -o errexit
 
+# We're already in /backend/vchat/ where build.sh is located
+# Install dependencies from the parent directory requirements.txt
+pip install -r ../requirements.txt
 
-
-# Modify this line as needed for your package manager (pip, poetry, etc.)
-pip install -r requirements.txt
-
-# Navigate to the correct directory
-cd vchat
+# No need to change directory as we're already in the directory with manage.py
 
 # Convert static asset files
 python manage.py collectstatic --no-input
 
+# Create migration files if needed
 python manage.py makemigrations
 
 # First migrate only the users app
 python manage.py migrate users
 
-# Then migrate the rest
+# Then migrate the rest of the apps
 python manage.py migrate
