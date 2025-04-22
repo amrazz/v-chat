@@ -169,5 +169,5 @@ AUTH_USER_MODEL = "users.CustomUser"
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173", "vchat-dev.vercel.app", "https://vchat-dev.vercel.app"
+    "http://localhost:5173",  "https://vchat-dev.vercel.app"
 ]
