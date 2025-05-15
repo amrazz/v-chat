@@ -6,6 +6,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { useSelector } from "react-redux";
 
 const Home = () => {
+  const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -18,8 +19,12 @@ const Home = () => {
     const fetchUsers = async () => {
       try {
         const response = await api.get("users/list-user/");
-        if (response.status === 200) {
+        const loggedInUserRes = await api.get(
+          "users/read-update-user/"
+        )
+        if (response.status === 200 && loggedInUserRes.status === 200) {
           setUsers(response.data);
+          setUser(loggedInUserRes.data)
           console.log("Users loaded:", response.data);
         }
       } catch (error) {
@@ -35,12 +40,14 @@ const Home = () => {
     const fetchMessages = async () => {
       if (!selectedUser) return;
       try {
-        const response = await api.get(
+        const userListResponse = await api.get(
           `users/user-message/${selectedUser.id}/`
         );
-        if (response.status === 200) {
-          setMessage(response.data);
-          console.log("Messages loaded:", response.data);
+        
+        if (userListResponse.status === 200 ) {
+          setMessage(userListResponse.data);
+          
+          console.log("Messages loaded:", userListResponse.data);
         }
       } catch (error) {
         toast.error(error);
@@ -93,7 +100,7 @@ const Home = () => {
   return (
     <div className="flex ">
       <ToastContainer />
-      <UserList users={users} onUserSelect={setSelectedUser} />
+      <UserList users={users} loggedinUser={user} onUserSelect={setSelectedUser} />
       <Chatbox
         messages={message}
         currentUser={selectedUser}

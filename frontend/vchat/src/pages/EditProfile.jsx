@@ -1,166 +1,201 @@
-import React from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
+import React, { useEffect, useRef, useState } from "react";
 import useApi from "../useApi";
 import { toast } from "react-toastify";
-import { useDispatch, useSelector } from "react-redux";
-import { saveLogin } from "../store/slice";
+import { Edit2, Mail, Upload, User } from "lucide-react";
 
+const EditProfile = () => {
+  const api = useApi();
+  const fileInputRef = useRef(null);
 
-const EditProfile = ({ loggedinUser, onClose }) => {
-    const api = useApi()
-    const dispatch = useDispatch()
-    const { access_token, refresh_token } = useSelector((state) => state.auth);
-
-  const validationSchema = Yup.object({
-    username: Yup.string(),
-    first_name: Yup.string(),
-    last_name: Yup.string(),
-    profile_img: Yup.mixed()
-      .nullable()
-      .test("fileSize", "File too large", (value) => {
-        if (value) {
-          return value.size <= 5 * 1024 * 1024;
-        }
-        return true;
-      })
-      .test("fileType", "Invalid file type", (value) => {
-        if (value) {
-          return ["image/jpeg", "image/png", "image/jpg"].includes(value.type);
-        }
-        return true;
-      }),
+  const [userData, setUserData] = useState(null);
+  const [formData, setFormData] = useState({
+    username: "",
+    first_name: "",
+    last_name: "",
+    profile_img: null,
   });
 
-  const initialValues = {
-    username: loggedinUser.username || "",
-    first_name: loggedinUser.first_name || "",
-    last_name: loggedinUser.last_name || "",
-    profile_img: null,
+  const [previewImage, setPreviewImage] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // const MEDIA_URL = "http://localhost:8000";
+  const MEDIA_URL = "https://v-chat-j9d2.onrender.com";
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await api.get("/users/read-update-user/");
+        setUserData(res.data);
+        setFormData({
+          username: res.data.username,
+          first_name: res.data.first_name,
+          last_name: res.data.last_name,
+          profile_img: null,
+        });
+        setPreviewImage(`${MEDIA_URL}${res.data.profile_img}`);
+      } catch (err) {
+        toast.error("Failed to fetch user data.");
+        console.error("Error fetching user:", err);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
-  const handleSubmit = async (values) => {
-    const formData = new FormData();
-    formData.append("username", values.username);
-    formData.append("first_name", values.first_name);
-    formData.append("last_name", values.last_name);
-    if (values.profile_img) {
-      formData.append("profile_img", values.profile_img);
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        profile_img: file,
+      }));
+      setPreviewImage(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSave = async () => {
+    const data = new FormData();
+    data.append("username", formData.username);
+    data.append("first_name", formData.first_name);
+    data.append("last_name", formData.last_name);
+    if (formData.profile_img) {
+      data.append("profile_img", formData.profile_img);
     }
 
     try {
-        const res = await api.put("users/update-profile/", formData)
+      const res = await api.put("/users/read-update-user/", data);
+      if (res.status === 200) {
+        toast.success("User profile updated successfully");
+        setIsEditing(false);
+        setUserData(res.data);
+        setPreviewImage(`${MEDIA_URL}${res.data.profile_img}`);
+      }
+    } catch (err) {
+      console.error("Failed to update profile:", err);
+      toast.error("Update failed!");
+    }
+  };
 
-        if (res.status === 200) {
-            toast.success("User Updated successfully")
-            console.log(`new updated user : ${JSON.stringify(res.data)}`)
-            dispatch(saveLogin({
-                user : res.data,
-                access_token,
-                refresh_token,
-            }))
+  const triggerFileInput = () => {
+    fileInputRef.current.click();
+  };
 
-            onClose()
-        }
-    } catch (error) {
-        toast.error("Something went wrong while updating");
-        console.error(error);
-      } 
-    };
+  if (!userData) {
+    return <div className="flex justify-center items-center h-screen"></div>;
+  }
 
   return (
-    <div className="fixed top-0 right-0 h-full w-full md:w-[400px] bg-white shadow-lg z-50 transition-transform duration-300 ease-in-out transform translate-x-0">
-      <div className="p-9 border-b flex justify-between items-center">
-        <h2 className="text-xl font-montserrat font-bold">Edit Profile</h2>
-        <button onClick={onClose} className="text-gray-500 hover:text-red-500 text-lg">
-          ✕
-        </button>
-      </div>
+    <div className="max-w-xl mx-auto px-6 py-10 font-montserrat">
+      <h2 className="text-2xl font-bold mb-6 text-center">Your Profile</h2>
 
-      <div className="p-5">
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ setFieldValue }) => (
-            <Form className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Username</label>
-                <Field
-                  name="username"
-                  className="w-full border p-2 rounded-md"
-                />
-                <ErrorMessage
-                  name="username"
-                  component="div"
-                  className="text-red-500 text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">First Name</label>
-                <Field
-                  name="first_name"
-                  className="w-full border p-2 rounded-md"
-                />
-                <ErrorMessage
-                  name="first_name"
-                  component="div"
-                  className="text-red-500 text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Last Name</label>
-                <Field
-                  name="last_name"
-                  className="w-full border p-2 rounded-md"
-                />
-                <ErrorMessage
-                  name="last_name"
-                  component="div"
-                  className="text-red-500 text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Profile Image</label>
-                <input
-                  type="file"
-                  name="profile_img"
-                  accept="image/*"
-                  onChange={(event) => {
-                    setFieldValue("profile_img", event.currentTarget.files[0]);
-                  }}
-                  className="w-full border p-2 rounded-md"
-                />
-                <ErrorMessage
-                  name="profile_img"
-                  component="div"
-                  className="text-red-500 text-sm"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                >
-                  Save
-                </button>
-              </div>
-            </Form>
+      <div className="flex justify-center items-center mb-6">
+        <div className="relative group w-32 h-32 rounded-full overflow-hidden bg-gray-200 flex justify-center items-center">
+          {previewImage ? (
+            <img
+              src={previewImage}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <User size={50} className="text-gray-400" />
           )}
-        </Formik>
+
+          {isEditing && (
+            <>
+              <button
+                onClick={triggerFileInput}
+                className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <Upload size={24} />
+              </button>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                ref={fileInputRef}
+                className="hidden"
+              />
+            </>
+          )}
+        </div>
       </div>
+
+      {isEditing ? (
+        <div className="space-y-4">
+          <div>
+            <label className="block mb-1">Username</label>
+            <input
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+              type="text"
+            />
+          </div>
+          <div className="flex gap-4">
+            <div className="w-full">
+              <label>First Name</label>
+              <input
+                type="text"
+                name="first_name"
+                value={formData.first_name}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+            </div>
+            <div className="w-full">
+              <label>Last Name</label>
+              <input
+                type="text"
+                name="last_name"
+                value={formData.last_name}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              />
+            </div>
+          </div>
+          <div className="flex gap-4 mt-4">
+            <button
+              onClick={handleSave}
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            >
+              Save
+            </button>
+            <button
+              onClick={() => {
+                setIsEditing(false);
+                setPreviewImage(`${MEDIA_URL}${userData.profile_img}`);
+              }}
+              className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-4 text-center">
+          <h3 className="text-2xl font-bold">{userData.username}</h3>
+          <p className="text-xl font-semibold text-gray-700">
+            Name: {userData.first_name} {userData.last_name}
+          </p>
+          <div className="flex justify-center items-center">
+          <button
+            onClick={() => setIsEditing(true)}
+            className="mt-4 flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+          >
+            <Edit2 size={16} />
+            Edit Profile
+          </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

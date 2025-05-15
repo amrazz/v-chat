@@ -47,14 +47,14 @@ const UserAuth = () => {
     });
   };
 
-  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+  const handleSubmit = async (values, { setSubmitting, setErrors, resetForm }) => {
     try {
       if (isLogin) {
         const response = await api.post("users/login/", {
           username: values.username,
           password: values.password,
         });
-
+  
         if (response.status === 200) {
           dispatch(
             saveLogin({
@@ -63,8 +63,8 @@ const UserAuth = () => {
               user: response.data.user,
             })
           );
+  
           toast.success("Logged in successfully");
-          console.log("Login successfull", response.data);
           navigate("/home", { replace: true });
         }
       } else {
@@ -75,18 +75,19 @@ const UserAuth = () => {
           first_name: values.firstName,
           last_name: values.lastName,
         });
-
+  
         if (response.status === 201) {
-          toast.success("New User Created successful.");
+          toast.success("Account created! You can now login.");
+          resetForm(); 
           setIsLogin(true);
         }
       }
     } catch (error) {
       console.log("Auth error:", error.response?.data || error.message);
-      toast.error("Invalid Credentials");
-
+      toast.error("Something went wrong");
+  
       const backendErrors = error?.response?.data;
-
+  
       if (backendErrors) {
         const formikFormattedError = {};
         for (let key in backendErrors) {
@@ -96,15 +97,13 @@ const UserAuth = () => {
             formikFormattedError[key] = backendErrors[key];
           }
         }
-
         setErrors(formikFormattedError);
-      } else {
-        toast.error("Invalid Credentials.");
       }
     } finally {
       setSubmitting(false);
     }
   };
+  
 
   return (
     <div className="m-0 p-0 h-[100vh] overflow-hidden relative">

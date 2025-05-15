@@ -18,3 +18,10 @@ python manage.py makemigrations
 
 # Then apply all migrations at once (without trying to migrate users separately)
 python manage.py migrate
+
+python manage.py shell << END
+from django.contrib.auth import get_user_model
+User = get_user_model()
+if not User.objects.filter(username='dell').exists():
+    User.objects.create_superuser('dell', 'admin@example.com', 'amraz')
+END

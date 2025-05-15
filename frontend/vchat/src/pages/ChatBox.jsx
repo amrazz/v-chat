@@ -1,12 +1,10 @@
 import { MoreVertical, Send, Smile } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import Picker from "emoji-picker-react";
-import EditProfile from "./EditProfile";
 
 const ChatBox = ({ messages, currentUser, onSendMessage, loggedinUser }) => {
   const [input, setInput] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
-  const [showEditProfile, setShowEditProfile] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -29,10 +27,6 @@ const ChatBox = ({ messages, currentUser, onSendMessage, loggedinUser }) => {
     setShowEmoji((prev) => !prev);
   };
 
-  const toggleEditProfile = () => {
-    setShowEditProfile((prev) => !prev);
-  };
-
   return (
     <div className="flex flex-col flex-1">
       {currentUser ? (
@@ -48,7 +42,9 @@ const ChatBox = ({ messages, currentUser, onSendMessage, loggedinUser }) => {
                   />
                 ) : (
                   <div className="font-montserrat text-black">
-                    {`${currentUser?.first_name[0].toUpperCase()}${currentUser?.last_name[0].toUpperCase()}`}
+                    {`${currentUser?.first_name?.[0]?.toUpperCase() || ""}${
+                      currentUser?.last_name?.[0]?.toUpperCase() || ""
+                    }`}
                   </div>
                 )}
               </div>
@@ -72,13 +68,10 @@ const ChatBox = ({ messages, currentUser, onSendMessage, loggedinUser }) => {
                 </div>
               </div>
             </div>
-            <button className="cursor-pointer" onClick={toggleEditProfile}>
-              <MoreVertical />
-            </button>
           </div>
           <div className="flex flex-col flex-1 overflow-y-auto p-5 space-y-4 max-h-[calc(100vh-164px)]">
             {messages.length === 0 ? (
-              <div className="flex items-center justify-center h-screen text-gray-400">
+              <div className="flex items-center justify-center flex-1 text-gray-400">
                 No messages yet. Start the conversation!
               </div>
             ) : (
@@ -113,14 +106,7 @@ const ChatBox = ({ messages, currentUser, onSendMessage, loggedinUser }) => {
             <div ref={messagesEndRef}></div>
           </div>
 
-          {showEditProfile && (
-            <EditProfile
-              loggedinUser={loggedinUser}
-              onClose={toggleEditProfile}
-            />
-          )}
-
-          <div className="p-2">
+          <div className="p-2 relative">
             <div className="flex items-center rounded-lg px-4 py-2 shadow-sm">
               <button
                 onClick={togglePickEmoji}
@@ -140,7 +126,8 @@ const ChatBox = ({ messages, currentUser, onSendMessage, loggedinUser }) => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === "Enter" && !e.shiftKey && !showEmoji) {
+                    e.preventDefault();
                     handleSend();
                   }
                 }}

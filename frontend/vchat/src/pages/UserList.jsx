@@ -1,10 +1,19 @@
-import { LogOut, Search } from "lucide-react";
+import { LogOut, MoreVertical, Search } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import useLogout from "./useLogout";
+import { useNavigate } from "react-router-dom";
+import useApi from "../useApi";
 
-const UserList = ({ users, onUserSelect }) => {
+const UserList = ({ users, loggedinUser, onUserSelect }) => {
   const logout = useLogout();
+  // const MEDIA_URL = 'http://localhost:8000'
+  const MEDIA_URL = 'https://v-chat-j9d2.onrender.com'
+  const navigate = useNavigate()
   const [search, setSearch] = useState("");
+  const [more, setMore] = useState(false)
+
+  console.log(`this is the logged in user ${JSON.stringify(loggedinUser)}`)
+  
 
   const filteredUser = useMemo(() => {
     return users.filter((user) =>
@@ -19,11 +28,28 @@ const UserList = ({ users, onUserSelect }) => {
           Chat
         </div>
         <button
-          onClick={logout}
-          className=" cursor-pointer bg-red-500 w-10 h-10 rounded-full text-white flex items-center justify-center mr-5 mt-4"
-        >
-          <LogOut size={20} />
-        </button>
+  onClick={() => setMore(!more)}
+  className="cursor-pointer bg-white w-12 h-12 rounded-full border border-gray-300 shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center mr-5 mt-4"
+>
+  <img
+    src={`${MEDIA_URL}${loggedinUser?.profile_img}`}
+    alt="Profile"
+    className="w-full h-full rounded-full object-cover"
+  />
+</button>
+        {more && (
+            <div className="absolute left-28 top-14 mt-2 w-40 bg-white shadow-lg rounded-lg z-10 overflow-hidden">
+              <ul className="font-montserrat p-3 cursor-pointer">
+                <li
+                onClick={() => navigate("/edit-profile")}
+                className="hover:bg-gray-200">Profile</li>
+                <li
+                onClick={logout}
+                className="hover:bg-gray-200">Logout</li>
+              </ul>
+
+          </div>
+        )}
       </div>
 
       <div className="w-full flex justify-center relative px-5 pb-5">

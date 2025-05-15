@@ -49,17 +49,18 @@ class UserLoginView(APIView):
 
 
 class UserLogoutView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         try:
             refresh_token = request.data["refresh"]
             print("refreh token" ,refresh_token)
             token = RefreshToken(refresh_token)
+            user_id = token['user_id']
             token.blacklist()
             print("Token blacklisted..")
 
-            user = User.objects.get(id=request.user.id)
+            user = User.objects.get(id=user_id)
             if user:
                 user.is_online = False
                 user.save()
@@ -119,3 +120,25 @@ class UserUpdateView(generics.UpdateAPIView):
     
     def get_object(self):
         return self.request.user
+    
+class ReadUpdateUserView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        try:
+            user = request.user
+            serializer = UserDetailSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error" : str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+    def put(self, request):
+        try:
+            user = request.user
+            serializer = UserDetailSerializer(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        

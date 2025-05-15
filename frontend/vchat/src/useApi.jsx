@@ -7,6 +7,7 @@ const useApi = () => {
 
   const api = useMemo(() => {
     const instance = axios.create({
+      // baseURL: `http://localhost:8000/api/`,
       baseURL: `https://v-chat-j9d2.onrender.com/api/`,
     });
 
