@@ -9,6 +9,7 @@ const Home = () => {
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState([]);
+  const baseUrl = import.meta.env.VITE_BASE_URL;
   const [selectedUser, setSelectedUser] = useState(null);
   const { user: loggedinUser, access_token } = useSelector(
     (state) => state.auth
@@ -57,8 +58,7 @@ const Home = () => {
   useEffect(() => {
     if (!selectedUser || socket.current?.readyState === WebSocket.OPEN) return;
   
-    const wsUrl = `wss://v-chat-j9d2.onrender.com/ws/chat/${selectedUser.id}/?token=${access_token}`;
-    // const wsUrl = `ws://localhost:8000/ws/chat/${selectedUser.id}/?token=${access_token}`;
+    const wsUrl = `wss://${baseUrl}/ws/chat/${selectedUser.id}/?token=${access_token}`;
     socket.current = new WebSocket(wsUrl);
   
     socket.current.onopen = () => {

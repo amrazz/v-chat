@@ -12,8 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 const UserList = ({ users, loggedinUser, onUserSelect, selectedUser }) => {
   const logout = useLogout();
-  // const MEDIA_URL = "http://localhost:8000";
-  const MEDIA_URL = "https://v-chat-j9d2.onrender.com";
+  import.meta.env.VITE_BASE_URL;
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [more, setMore] = useState(false);

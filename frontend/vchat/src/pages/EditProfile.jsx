@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import useApi from "../useApi";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { Edit2, Mail, Upload, User, Camera, Check, X } from "lucide-react";
 
 const EditProfile = () => {
@@ -18,8 +18,7 @@ const EditProfile = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  // const MEDIA_URL = "http://localhost:8000";
-  const MEDIA_URL = "https://v-chat-j9d2.onrender.com";
+  const MEDIA_URL = import.meta.env.VITE_BASE_URL;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -32,7 +31,11 @@ const EditProfile = () => {
           last_name: res.data.last_name,
           profile_img: null,
         });
-        setPreviewImage(`${MEDIA_URL}${res.data.profile_img}`);
+        if (res.data.profile_img) {
+          setPreviewImage(`${MEDIA_URL}${res.data.profile_img}`);
+        } else {
+          setPreviewImage(null);
+        }
       } catch (err) {
         toast.error("Failed to fetch user data.");
         console.error("Error fetching user:", err);
@@ -60,7 +63,43 @@ const EditProfile = () => {
     }
   };
 
+  const validateForm = () => {
+    const errors = [];
+
+    // Username: letters, numbers, underscore only
+    const usernameRegex = /^(?![_.]+$)[a-zA-Z0-9_]{3,20}$/;
+    if (!formData.username.trim()) {
+      errors.push("Username is required.");
+    } else if (!usernameRegex.test(formData.username)) {
+      errors.push(
+        "Username must be 3-20 characters and contain only letters, numbers, and underscores."
+      );
+    }
+
+    // Name: letters only (allow spaces & hyphens)
+    const nameRegex = /^[A-Za-z]+(?:[ -][A-Za-z]+)*$/;
+    if (!formData.first_name.trim()) {
+      errors.push("First name is required.");
+    } else if (!nameRegex.test(formData.first_name)) {
+      errors.push("First name can only contain letters, spaces, or hyphens.");
+    }
+
+    if (!formData.last_name.trim()) {
+      errors.push("Last name is required.");
+    } else if (!nameRegex.test(formData.last_name)) {
+      errors.push("Last name can only contain letters, spaces, or hyphens.");
+    }
+
+    return errors;
+  };
+
   const handleSave = async () => {
+    const errors = validateForm();
+    if (errors.length > 0) {
+      errors.forEach((err) => toast.error(err)); // Show all errors
+      return;
+    }
+
     const data = new FormData();
     data.append("username", formData.username);
     data.append("first_name", formData.first_name);
@@ -75,7 +114,9 @@ const EditProfile = () => {
         toast.success("User profile updated successfully");
         setIsEditing(false);
         setUserData(res.data);
-        setPreviewImage(`${MEDIA_URL}${res.data.profile_img}`);
+        setPreviewImage(
+          res.data.profile_img ? `${MEDIA_URL}${res.data.profile_img}` : null
+        );
       }
     } catch (err) {
       console.error("Failed to update profile:", err);
@@ -97,20 +138,21 @@ const EditProfile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 py-12 px-4">
+      <ToastContainer />
       <div className="max-w-2xl mx-auto">
         {/* Header Section */}
 
         {/* Main Card */}
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
           {/* Card Header with Decorative Element */}
-          
+
           <div className="relative bg-gradient-to-r from-red-500 to-red-300 px-8 py-8">
-          <h1 className="text-2xl font-bold text-white text-center mb-8 tracking-tight">
-            Profile Settings
-          </h1>
+            <h1 className="text-2xl font-bold text-white text-center mb-8 tracking-tight">
+              Profile Settings
+            </h1>
             <div className="absolute top-0 right-0 w-42 h-42 bg-white/10 rounded-full -translate-y-12 translate-x-10"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
-            
+
             <div className="relative z-10 flex justify-center">
               <div className="relative group">
                 <div className="w-36 h-36 rounded-full bg-white p-1 shadow-2xl">
@@ -234,8 +276,6 @@ const EditProfile = () => {
                   </div>
                 </div>
 
-               
-
                 {/* Edit Button */}
                 <button
                   onClick={() => setIsEditing(true)}
@@ -248,7 +288,6 @@ const EditProfile = () => {
             )}
           </div>
         </div>
-
       </div>
     </div>
   );
