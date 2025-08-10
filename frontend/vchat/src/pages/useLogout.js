@@ -12,7 +12,6 @@ const useLogout = () => {
   const handleLogout = async () => {
     try {
       const response = await api.post("users/logout/", { refresh: refresh_token });
-      console.log(`response === ${JSON.stringify(response)}`)
       if (response.status === 205) {
         console.log(`I am loggin out....`)
         dispatch(removeLogin());

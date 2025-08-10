@@ -25,7 +25,6 @@ const Home = () => {
         if (response.status === 200 && loggedInUserRes.status === 200) {
           setUsers(response.data);
           setUser(loggedInUserRes.data)
-          console.log("Users loaded:", response.data);
         }
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -47,7 +46,6 @@ const Home = () => {
         if (userListResponse.status === 200 ) {
           setMessage(userListResponse.data);
           
-          console.log("Messages loaded:", userListResponse.data);
         }
       } catch (error) {
         toast.error(error);
@@ -57,9 +55,10 @@ const Home = () => {
   }, [selectedUser]);
 
   useEffect(() => {
-    if (!selectedUser) return;
+    if (!selectedUser || socket.current?.readyState === WebSocket.OPEN) return;
   
     const wsUrl = `wss://v-chat-j9d2.onrender.com/ws/chat/${selectedUser.id}/?token=${access_token}`;
+    // const wsUrl = `ws://localhost:8000/ws/chat/${selectedUser.id}/?token=${access_token}`;
     socket.current = new WebSocket(wsUrl);
   
     socket.current.onopen = () => {
@@ -87,20 +86,26 @@ const Home = () => {
   }, [selectedUser]);
 
   const sendMessage = async (msg) => {
-    if (socket.current && msg.trim()) {
-      const payload = {
-        message: msg,
-        sender: loggedinUser.id,
-        receiver: selectedUser.id,
-      };
-
-      socket.current.send(JSON.stringify(payload));
+    try {
+      if (socket.current && msg.trim()) {
+        const payload = {
+          message: msg,
+          sender: loggedinUser.id,
+          receiver: selectedUser.id,
+        };
+  
+        socket.current.send(JSON.stringify(payload));
+      }
+    } catch (error) {
+      toast.error("Failed to send message")
+      console.log("Send message error : ", error)
     }
   };
   return (
-    <div className="flex ">
+    <div className="flex">
       <ToastContainer />
-      <UserList users={users} loggedinUser={user} onUserSelect={setSelectedUser} />
+      
+      <UserList users={users} loggedinUser={user} onUserSelect={setSelectedUser} selectedUser={selectedUser} />
       <Chatbox
         messages={message}
         currentUser={selectedUser}
