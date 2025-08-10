@@ -7,7 +7,7 @@ const useApi = () => {
 
   const api = useMemo(() => {
     const instance = axios.create({
-      baseURL: `https://${import.meta.env.VITE_BASE_URL}/api/`,
+      baseURL: `${import.meta.env.VITE_BASE_URL}/api/`,
     });
 
     instance.interceptors.request.use(

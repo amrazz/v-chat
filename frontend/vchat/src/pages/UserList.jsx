@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 const UserList = ({ users, loggedinUser, onUserSelect, selectedUser }) => {
   const logout = useLogout();
-  import.meta.env.VITE_BASE_URL;
+  const MEDIA_URL = import.meta.env.VITE_BASE_URL;
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [more, setMore] = useState(false);

@@ -9,7 +9,7 @@ const Home = () => {
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState([]);
-  const baseUrl = import.meta.env.VITE_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BASE_URL.replace(/^https?:\/\//, ""); 
   const [selectedUser, setSelectedUser] = useState(null);
   const { user: loggedinUser, access_token } = useSelector(
     (state) => state.auth
@@ -59,6 +59,7 @@ const Home = () => {
     if (!selectedUser || socket.current?.readyState === WebSocket.OPEN) return;
   
     const wsUrl = `wss://${baseUrl}/ws/chat/${selectedUser.id}/?token=${access_token}`;
+
     socket.current = new WebSocket(wsUrl);
   
     socket.current.onopen = () => {
