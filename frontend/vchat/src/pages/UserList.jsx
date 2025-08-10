@@ -13,20 +13,20 @@ import { useNavigate } from "react-router-dom";
 const UserList = ({ users, loggedinUser, onUserSelect, selectedUser }) => {
   const logout = useLogout();
   // const MEDIA_URL = "http://localhost:8000";
-  const MEDIA_URL = 'https://v-chat-j9d2.onrender.com'
+  const MEDIA_URL = "https://v-chat-j9d2.onrender.com";
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [more, setMore] = useState(false);
 
-
   const filteredUser = useMemo(() => {
-    return users.filter((user) =>
-      `${user.first_name} ${user.last_name}`
-        .toLowerCase()
-        .includes(search.toLowerCase())
-    );
+    return users
+      .filter((user) => user.username !== "dell")
+      .filter((user) =>
+        `${user.first_name} ${user.last_name}`
+          .toLowerCase()
+          .includes(search.toLowerCase())
+      );
   }, [search, users]);
-
   return (
     <div className="w-[320px] bg-gradient-to-b from-white to-gray-50 border-r border-gray-200 h-screen flex flex-col shadow-lg">
       {/* Header Section */}
@@ -44,7 +44,6 @@ const UserList = ({ users, loggedinUser, onUserSelect, selectedUser }) => {
               <h1 className="text-2xl font-bold text-white tracking-wide font-montserrat">
                 V CHAT
               </h1>
-             
             </div>
           </div>
 
@@ -139,10 +138,12 @@ const UserList = ({ users, loggedinUser, onUserSelect, selectedUser }) => {
               <li
                 key={user.id}
                 onClick={() => {
-                  onUserSelect(user)
+                  onUserSelect(user);
                 }}
                 className={`group relative flex items-center gap-4 px-4 py-3 mx-2 rounded-xl hover:bg-red-50 transition-all hover:scale-105 duration-200 cursor-pointer ${
-                  user.id === selectedUser?.id ? "bg-red-100 border border-red-100" : ""
+                  user.id === selectedUser?.id
+                    ? "bg-red-100 border border-red-100"
+                    : ""
                 }`}
               >
                 {/* Profile Image */}
@@ -160,7 +161,9 @@ const UserList = ({ users, loggedinUser, onUserSelect, selectedUser }) => {
                       {initials.toUpperCase()}
                     </div>
                   )}
-                 {user.is_online && ( <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></div>)}
+                  {user.is_online && (
+                    <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></div>
+                  )}
                 </div>
 
                 {/* User Info */}
@@ -177,7 +180,6 @@ const UserList = ({ users, loggedinUser, onUserSelect, selectedUser }) => {
                     {user.message || "No messages yet"}
                   </p>
                 </div>
-
               </li>
             );
           })}
