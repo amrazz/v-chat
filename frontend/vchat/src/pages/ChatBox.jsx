@@ -120,7 +120,7 @@ const ChatBox = ({
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <button className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-200">
                   <Phone className="text-white" size={18} />
                 </button>
@@ -130,7 +130,7 @@ const ChatBox = ({
                 <button className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-200">
                   <Info className="text-white" size={18} />
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -282,12 +282,12 @@ const ChatBox = ({
                 }}
               />
               <div className="flex items-center gap-2">
-                <button className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-gray-500 hover:text-red-500 transition-colors duration-200 rounded-full hover:bg-red-50">
+                {/* <button className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-gray-500 hover:text-red-500 transition-colors duration-200 rounded-full hover:bg-red-50">
                   <Paperclip size={18} />
                 </button>
                 <button className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-gray-500 hover:text-red-500 transition-colors duration-200 rounded-full hover:bg-red-50">
                   <Mic size={18} />
-                </button>
+                </button> */}
                 <button
                   onClick={handleSend}
                   disabled={!input.trim()}
