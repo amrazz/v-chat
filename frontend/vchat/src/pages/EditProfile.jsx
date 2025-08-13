@@ -8,6 +8,7 @@ const EditProfile = () => {
   const fileInputRef = useRef(null);
 
   const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     first_name: "",
@@ -109,6 +110,7 @@ const EditProfile = () => {
     }
 
     try {
+      setLoading(true)
       const res = await api.put("/users/read-update-user/", data);
       if (res.status === 200) {
         toast.success("User profile updated successfully");
@@ -121,6 +123,8 @@ const EditProfile = () => {
     } catch (err) {
       console.error("Failed to update profile:", err);
       toast.error("Update failed!");
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -245,10 +249,11 @@ const EditProfile = () => {
                 <div className="flex gap-3 pt-6">
                   <button
                     onClick={handleSave}
+                    disabled={loading}
                     className="flex-1 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
                   >
                     <Check size={20} />
-                    Save Changes
+                   {loading ? "Saving changes..." : "Save Changes"}
                   </button>
                   <button
                     onClick={() => {

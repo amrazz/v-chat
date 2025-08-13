@@ -18,7 +18,6 @@ const PrivateRoute = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Utility function to check if token is expired
   const isTokenValid = (token) => {
     try {
       const decoded = jwtDecode(token);
