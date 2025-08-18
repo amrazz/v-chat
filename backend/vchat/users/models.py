@@ -27,16 +27,25 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
-    
+
 
 class Message(models.Model):
-    sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='send_messages')
-    receiver = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='received_messages')
+    sender = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="send_messages"
+    )
+    receiver = models.ForeignKey(
+        CustomUser, on_delete=models.CASCADE, related_name="received_messages"
+    )
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    
+
     def __str__(self):
         return (
             f"{self.sender.username} to {self.receiver.username}: {self.message[:10]}"
         )
-    
+        
+    class Meta:
+        indexes = [
+            models.Index(fields=["sender", "receiver", "-timestamp"]),
+            models.Index(fields=["receiver", "sender", "-timestamp"]),
+        ]

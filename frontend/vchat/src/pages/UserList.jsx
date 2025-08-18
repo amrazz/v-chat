@@ -176,7 +176,7 @@ const UserList = ({ users, loggedinUser, onUserSelect, selectedUser }) => {
                     </span>
                   </div>
                   <p className="text-sm text-gray-600 truncate">
-                    {user.message || "No messages yet"}
+                    {user.last_message || "No messages yet"}
                   </p>
                 </div>
               </li>

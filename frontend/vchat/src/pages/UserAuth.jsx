@@ -27,8 +27,10 @@ const UserAuth = () => {
   const validateSchema = () => {
     return Yup.object().shape({
       username: Yup.string()
-        .required("Username is required")
-        .min(5, "Username too short"),
+        .trim()
+        .matches(/^(?!\s{2,})/, "Username cannot start with spaces")
+        .matches(/^(?!_{2,3})/, "Username cannot start with underscores")
+        .required("Username is required"),
       password: Yup.string()
         .required("Password is required")
         .min(6, "Password must be atleast 6 characters")
@@ -38,8 +40,16 @@ const UserAuth = () => {
       ...(isLogin
         ? {}
         : {
-            firstName: Yup.string().required("First name is required"),
-            lastName: Yup.string().required("Last name is required"),
+            firstName: Yup.string()
+            .trim()
+            .matches(/^(?!\s{2,})/, "First name cannot start with spaces")
+            .matches(/^(?!_{2,3})/, "First name cannot start with underscores")
+            .required("First name is required"),
+            lastName: Yup.string()
+            .trim()
+            .matches(/^(?!\s{2,})/, "Last name cannot start with spaces")
+            .matches(/^(?!_{2,3})/, "Last name cannot start with underscores")
+            .required("Last name is required"),
             password2: Yup.string()
               .oneOf([Yup.ref("password"), null], "Password must match")
               .required("Confirm password is required"),
@@ -47,14 +57,17 @@ const UserAuth = () => {
     });
   };
 
-  const handleSubmit = async (values, { setSubmitting, setErrors, resetForm }) => {
+  const handleSubmit = async (
+    values,
+    { setSubmitting, setErrors, resetForm }
+  ) => {
     try {
       if (isLogin) {
         const response = await api.post("users/login/", {
           username: values.username,
           password: values.password,
         });
-  
+
         if (response.status === 200) {
           dispatch(
             saveLogin({
@@ -63,7 +76,7 @@ const UserAuth = () => {
               user: response.data.user,
             })
           );
-  
+
           toast.success("Logged in successfully");
           navigate("/home", { replace: true });
         }
@@ -75,19 +88,19 @@ const UserAuth = () => {
           first_name: values.firstName,
           last_name: values.lastName,
         });
-  
+
         if (response.status === 201) {
           toast.success("Account created! You can now login.");
-          resetForm(); 
+          resetForm();
           setIsLogin(true);
         }
       }
     } catch (error) {
       console.log("Auth error:", error.response?.data || error.message);
       toast.error("Something went wrong");
-  
+
       const backendErrors = error?.response?.data;
-  
+
       if (backendErrors) {
         const formikFormattedError = {};
         for (let key in backendErrors) {
@@ -103,7 +116,6 @@ const UserAuth = () => {
       setSubmitting(false);
     }
   };
-  
 
   return (
     <div className="m-0 p-0 h-[100vh] overflow-hidden relative">

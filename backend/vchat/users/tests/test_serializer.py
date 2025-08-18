@@ -26,7 +26,6 @@ class UserRegisterSerializerTest(TestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn("username", serializer.errors)
 
-
     def test_password_mismatch(self):
         data = {
             "username": "newuser",

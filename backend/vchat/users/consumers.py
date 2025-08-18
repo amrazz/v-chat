@@ -8,6 +8,7 @@ from urllib.parse import parse_qs
 from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth import get_user_model
 from asgiref.sync import sync_to_async
+from loguru import logger
 
 User = get_user_model()
 
@@ -28,36 +29,36 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.sender_id = int(self.scope["user"].id)
         self.receiver_id = int(self.scope["url_route"]["kwargs"]["receiver_id"])
 
-        print(
+        logger.info(
             f"this is the sender id {self.sender_id} and this is the receiver_id : {self.receiver_id}"
         )
 
         self.room_name = f"chat_{min(self.sender_id, self.receiver_id)}_{max(self.sender_id, self.receiver_id)}"
         self.room_group_name = f"chat_{self.room_name}"
 
-        print(f"Connecting to room group: {self.room_group_name}")
+        logger.info(f"Connecting to room group: {self.room_group_name}")
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
 
         await self.accept()
-        print(f"WebSocket connected: {self.channel_name}")
+        logger.info(f"WebSocket connected: {self.channel_name}")
 
     async def disconnect(self, code):
-        print(f"WebSocket disconnecting: {self.channel_name}, close_code: {code}")
+        logger.info(f"WebSocket disconnecting: {self.channel_name}, close_code: {code}")
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
-        print(f"WebSocket disconnected: {self.channel_name}")
+        logger.info(f"WebSocket disconnected: {self.channel_name}")
 
     async def receive(self, text_data=None):
-        print("received")
-        print(text_data)
+        logger.info("received")
+        logger.info(text_data)
         data = json.loads(text_data)
         message = data["message"]
         sender_id = data["sender"]
         receiver_id = data["receiver"]
-        
+
         if not sender_id or not receiver_id or not message:
-            print("The receiver args is not enough.")
+            logger.info("The receiver args is not enough.")
             return
 
         message_obj = await self.save_message(sender_id, receiver_id, message)

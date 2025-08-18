@@ -4,14 +4,18 @@ from rest_framework.permissions import *
 from rest_framework import generics, status
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
+from django.db.models import Q, OuterRef, Subquery, DateTimeField
+
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from .serializers import (
     MessageSerializer,
+    ReadUserDetailSerializer,
     UserDetailSerializer,
     UserLoginSerializer,
     UserRegisterSerializers,
 )
 from .models import Message
+from loguru import logger
 
 # Create your views here.
 
@@ -35,7 +39,7 @@ class UserLoginView(APIView):
             user.is_online = True
             user.save()
             refresh_token = RefreshToken.for_user(user)
-            user_serializer = UserDetailSerializer(user)
+            user_serializer = ReadUserDetailSerializer(user)
             return Response(
                 {
                     "login": True,
@@ -54,11 +58,10 @@ class UserLogoutView(APIView):
     def post(self, request):
         try:
             refresh_token = request.data["refresh"]
-            print("refreh token" ,refresh_token)
             token = RefreshToken(refresh_token)
-            user_id = token['user_id']
+            user_id = token["user_id"]
             token.blacklist()
-            print("Token blacklisted..")
+            logger.info("Token blacklisted..")
 
             user = User.objects.get(id=user_id)
             if user:
@@ -74,7 +77,7 @@ class UserLogoutView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         except TokenError as e:
-            print(str(e))
+            logger.error(str(e))
             return Response(
                 {"error": "Invalid or expired token"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -86,8 +89,23 @@ class ListUserView(generics.ListAPIView):
     serializer_class = UserDetailSerializer
 
     def get_queryset(self):
-        return User.objects.exclude(id=self.request.user.id).order_by(
-            "first_name", "last_name"
+        user = self.request.user
+        latest_message_subquery = (
+            Message.objects.filter(
+                Q(sender=user, receiver=OuterRef("pk"))
+                | Q(sender=OuterRef("pk"), receiver=user)
+            )
+            .order_by("-timestamp")
+            .values("timestamp")[:1]
+        )
+        return (
+            User.objects.exclude(id=user.id)
+            .annotate(
+                last_message_time=Subquery(
+                    latest_message_subquery, output_field=DateTimeField()
+                )
+            )
+            .order_by("-last_message_time", "first_name", "last_name")
         )
 
 
@@ -99,8 +117,10 @@ class UserMessageView(APIView):
             receiver = User.objects.get(id=user_id)
             sender = User.objects.get(id=request.user.id)
             message = (
-                Message.objects.filter(sender=sender, receiver=receiver)
-                | Message.objects.filter(sender=receiver, receiver=sender)
+                Message.objects.filter(
+                    Q(sender=sender, receiver=receiver)
+                    | Q(sender=receiver, receiver=sender)
+                )
             ).order_by("timestamp")
             serializer = MessageSerializer(message, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -117,28 +137,32 @@ class UserMessageView(APIView):
 class UserUpdateView(generics.UpdateAPIView):
     serializer_class = UserDetailSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def get_object(self):
         return self.request.user
-    
+
+
 class ReadUpdateUserView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         try:
             user = request.user
-            serializer = UserDetailSerializer(user)
+            serializer = ReadUserDetailSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"error" : str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     def put(self, request):
         try:
             user = request.user
-            serializer = UserDetailSerializer(user, data=request.data, partial=True)
+            serializer = ReadUserDetailSerializer(user, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

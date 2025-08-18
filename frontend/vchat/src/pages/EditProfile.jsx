@@ -1,10 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import useApi from "../useApi";
 import { toast, ToastContainer } from "react-toastify";
-import { Edit2, Mail, Upload, User, Camera, Check, X } from "lucide-react";
+import {
+  Edit2,
+  Mail,
+  Upload,
+  User,
+  Camera,
+  Check,
+  X,
+  ArrowLeftCircle,
+  ArrowLeft,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const EditProfile = () => {
   const api = useApi();
+  const naviatage = useNavigate();
   const fileInputRef = useRef(null);
 
   const [userData, setUserData] = useState(null);
@@ -67,7 +79,6 @@ const EditProfile = () => {
   const validateForm = () => {
     const errors = [];
 
-    // Username: letters, numbers, underscore only
     const usernameRegex = /^(?![_.]+$)[a-zA-Z0-9_]{3,20}$/;
     if (!formData.username.trim()) {
       errors.push("Username is required.");
@@ -77,7 +88,6 @@ const EditProfile = () => {
       );
     }
 
-    // Name: letters only (allow spaces & hyphens)
     const nameRegex = /^[A-Za-z]+(?:[ -][A-Za-z]+)*$/;
     if (!formData.first_name.trim()) {
       errors.push("First name is required.");
@@ -110,7 +120,7 @@ const EditProfile = () => {
     }
 
     try {
-      setLoading(true)
+      setLoading(true);
       const res = await api.put("/users/read-update-user/", data);
       if (res.status === 200) {
         toast.success("User profile updated successfully");
@@ -124,7 +134,7 @@ const EditProfile = () => {
       console.error("Failed to update profile:", err);
       toast.error("Update failed!");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -144,7 +154,13 @@ const EditProfile = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 py-12 px-4">
       <ToastContainer />
       <div className="max-w-2xl mx-auto">
-        {/* Header Section */}
+        <div
+          className="absolute top-16  left-14 p-3 shadow rounded-full cursor-pointer z-50 bg-white"
+          onClick={() => naviatage("/home")}
+        >
+          {/* <ArrowLeft size={40} color="white" /> */}
+          <ArrowLeft size={40} color="rgb(255,91,91)" />
+        </div>
 
         {/* Main Card */}
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
@@ -253,7 +269,7 @@ const EditProfile = () => {
                     className="flex-1 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
                   >
                     <Check size={20} />
-                   {loading ? "Saving changes..." : "Save Changes"}
+                    {loading ? "Saving changes..." : "Save Changes"}
                   </button>
                   <button
                     onClick={() => {
