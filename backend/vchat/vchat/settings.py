@@ -34,7 +34,12 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = False
 
 # ALLOWED_HOSTS = ["*"]
-ALLOWED_HOSTS = ["vchat-dev.vercel.app", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = [
+    "vchat-dev.vercel.app",
+    "v-chat-j9d2.onrender.com",
+    "localhost",
+    "127.0.0.1",
+]
 
 
 # Application definition
@@ -113,12 +118,7 @@ CHANNEL_LAYERS = {
 
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
-DATABASES = {
-    'default': dj_database_url.config(
-        default= DATABASE_URL,
-        conn_max_age=600
-    )
-}
+DATABASES = {"default": dj_database_url.config(default=DATABASE_URL, conn_max_age=600)}
 
 
 # DATABASES = {
