@@ -191,3 +191,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "https://vchat-dev.vercel.app",
 ]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://vchat-dev.vercel.app",
+    "https://v-chat-j9d2.onrender.com"
+]
