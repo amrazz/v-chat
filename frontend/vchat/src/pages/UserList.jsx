@@ -75,7 +75,7 @@ const UserList = ({ users, loggedinUser, onUserSelect, selectedUser }) => {
                   </div>
                   <button
                     onClick={() => {
-                      navigate("/edit-profile");
+                      navigate("/profile/edit");
                       setMore(false);
                     }}
                     className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors duration-200 flex items-center gap-3"

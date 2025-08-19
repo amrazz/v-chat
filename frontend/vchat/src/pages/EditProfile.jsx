@@ -156,7 +156,7 @@ const EditProfile = () => {
       <div className="max-w-2xl mx-auto">
         <div
           className="absolute top-16  left-14 p-3 shadow rounded-full cursor-pointer z-50 bg-white"
-          onClick={() => naviatage("/home")}
+          onClick={() => naviatage("/")}
         >
           {/* <ArrowLeft size={40} color="white" /> */}
           <ArrowLeft size={40} color="rgb(255,91,91)" />

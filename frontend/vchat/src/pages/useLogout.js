@@ -16,7 +16,7 @@ const useLogout = () => {
         console.log(`I am loggin out....`)
         dispatch(removeLogin());
         toast.success("Logged out successfully");
-        navigate("/")
+        navigate("/login")
       }
     } catch (error) {
       console.error("Logout error:", error);

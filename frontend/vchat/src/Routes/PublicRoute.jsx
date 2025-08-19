@@ -6,7 +6,7 @@ const PublicRoute = ({ children }) => {
   const { is_login } = useSelector((state) => state.auth);
 
   if (is_login) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return children;

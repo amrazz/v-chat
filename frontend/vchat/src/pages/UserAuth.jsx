@@ -78,7 +78,7 @@ const UserAuth = () => {
           );
 
           toast.success("Logged in successfully");
-          navigate("/home", { replace: true });
+          navigate("/", { replace: true });
         }
       } else {
         const response = await api.post("users/register/", {
