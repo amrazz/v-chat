@@ -36,7 +36,7 @@ const EditProfile = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await api.get("/users/read-update-user/");
+        const res = await api.get("/users/me/");
         setUserData(res.data);
         setFormData({
           username: res.data.username,
@@ -121,7 +121,7 @@ const EditProfile = () => {
 
     try {
       setLoading(true);
-      const res = await api.put("/users/read-update-user/", data);
+      const res = await api.put("/users/me/", data);
       if (res.status === 200) {
         toast.success("User profile updated successfully");
         setIsEditing(false);

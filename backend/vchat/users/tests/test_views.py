@@ -79,7 +79,7 @@ class UserLogoutViewTest(TestCase):
 class ListUserViewTest(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.list_user_url = reverse("list-user")
+        self.list_user_url = reverse("list")
 
         # Create main user and several other users
         self.main_user = User.objects.create_user(

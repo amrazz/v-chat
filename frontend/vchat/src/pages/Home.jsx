@@ -19,8 +19,8 @@ const Home = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await api.get("users/list-user/");
-        const loggedInUserRes = await api.get("users/read-update-user/");
+        const response = await api.get("users/list/");
+        const loggedInUserRes = await api.get("users/me/");
         if (response.status === 200 && loggedInUserRes.status === 200) {
           setUsers(response.data);
           setUser(loggedInUserRes.data);
@@ -39,7 +39,7 @@ const Home = () => {
       if (!selectedUser) return;
       try {
         const userListResponse = await api.get(
-          `users/user-message/${selectedUser.id}/`
+          `users/messages/${selectedUser.id}/`
         );
 
         if (userListResponse.status === 200) {
